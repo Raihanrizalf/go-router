@@ -48,6 +48,15 @@ final GoRouter _router = GoRouter(
               text: text,
             );
           },
+          routes: <RouteBase>[
+            GoRoute(
+              path: 'more-detailed',
+              name: 'more-detailed',
+              builder: (BuildContext context, GoRouterState state) {
+                return const MoreDetailedScreen();
+              } 
+            )
+          ]
         ),
       ],
     ),
@@ -105,7 +114,7 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            return context.go(Uri(path: '/details').toString(), extra: test);
+            return context.go(Uri(path: 'details').toString(), extra: test);
             // return context.go(Uri(path: '/details', queryParameters: {'text': 'halaman details'}).toString());
             // context.goNamed('detil', pathParameters: {'text': 'halaman details'});
           } ,
@@ -139,13 +148,40 @@ class DetailsScreen extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  return context.go('/');
+                  return context.go('details', extra: text);
                 } ,
                 child: const Text('Go back to the Home screen'),
               ),
             ),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  return context.goNamed('more-detailed', extra: text);
+                } ,
+                child: const Text('Go to more detailed'),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class MoreDetailedScreen extends StatelessWidget {
+  const MoreDetailedScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('More Detailed Screen'), backgroundColor: Colors.yellow),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            return context.go('details');
+          },
+          child: const Text('Go back to the Home screen'),
+        )
       ),
     );
   }
