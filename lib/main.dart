@@ -4,7 +4,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_go_router/product_provider.dart';
+import 'package:flutter_go_router/router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:uni_links/uni_links.dart';
 
 /// This sample app shows an app with two screens.
 ///
@@ -14,7 +18,27 @@ import 'package:go_router/go_router.dart';
 /// The buttons use context.go() to navigate to each destination. On mobile
 /// devices, each destination is deep-linkable and on the web, can be navigated
 /// to using the address bar.
-void main() => runApp(const MyApp());
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => Product())
+      ],
+      child: const MyApp(),
+    )
+  );
+  initUiLinks();
+} 
+
+void initUiLinks() {
+  uriLinkStream.listen((event) 
+    {
+      print(event);
+      
+    }
+  );
+}
+
 
 CustomTransitionPage buildPageWithDefaultTransition<T>({
   required BuildContext context, 
@@ -29,50 +53,25 @@ CustomTransitionPage buildPageWithDefaultTransition<T>({
   );
 }
 
-/// The route configuration.
-final GoRouter _router = GoRouter(
-  errorBuilder: (context, state) => const NotFoundScreen(),
-  routes: <RouteBase>[
-    GoRoute(
-      path: '/',
-      builder: (BuildContext context, GoRouterState state) {
-        return const HomeScreen();
-      },
-      routes: <RouteBase>[
-        GoRoute(
-          path: 'details',
-          name: 'detil',
-          builder: (BuildContext context, GoRouterState state) {
-            Data text = state.extra as Data;
-            return DetailsScreen(
-              text: text,
-            );
-          },
-          routes: <RouteBase>[
-            GoRoute(
-              path: 'more-detailed',
-              name: 'more-detailed',
-              builder: (BuildContext context, GoRouterState state) {
-                return const MoreDetailedScreen();
-              } 
-            )
-          ]
-        ),
-      ],
-    ),
-  ],
-  debugLogDiagnostics: true
-);
-
 /// The main app.
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   /// Constructs a [MyApp]
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+  }
+ 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: router,
       theme: ThemeData(
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
@@ -111,15 +110,33 @@ class HomeScreen extends StatelessWidget {
   Data test = Data(title: 'judul', body: 'Body');
     return Scaffold(
       appBar: AppBar(title: const Text('Home Screen')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            return context.go(Uri(path: 'details').toString(), extra: test);
-            // return context.go(Uri(path: '/details', queryParameters: {'text': 'halaman details'}).toString());
-            // context.goNamed('detil', pathParameters: {'text': 'halaman details'});
-          } ,
-          child: const Text('Go to the Details screen'),
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                return context.go(Uri(path: '/details').toString(), extra: test);
+                // return context.go(Uri(path: '/details', queryParameters: {'text': 'halaman details'}).toString());
+                // context.goNamed('detil', pathParameters: {'text': 'halaman details'});
+              } ,
+              child: const Text('Go to the Details screen'),
+            ),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // return context.go(Uri(path: '/details').toString(), extra: test);
+                // return context.go(Uri(path: '/details', queryParameters: {'text': 'halaman details'}).toString());
+                // context.goNamed('detil', pathParameters: {'text': 'halaman details'});
+                Navigator.push(context, CupertinoPageRoute(builder: (context) {
+                    return DetailsScreen(isRoute: false);
+                  },));
+              } ,
+              child: const Text('Go to details using Navigator'),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -127,15 +144,21 @@ class HomeScreen extends StatelessWidget {
 
 /// The details screen
 class DetailsScreen extends StatelessWidget {
-  final Data text;
+  final bool isRoute;
+  final Data? text;
   /// Constructs a [DetailsScreen]
-  const DetailsScreen({super.key, required this.text});
+  const DetailsScreen({super.key, this.text, required this.isRoute});
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: ()  async {
-        context.go('/');
+        Navigator.pop(context);
+        // if (isRoute) {
+        //   context.go('/');
+        // } else {
+        //   Navigator.pop(context);
+        // }
         return false;
       },
       child: Scaffold(
@@ -143,12 +166,12 @@ class DetailsScreen extends StatelessWidget {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Title : ${text.title}'),
-            Text('Body : ${text.body}'),
+            Text('Title : ${text?.title}'),
+            Text('Body : ${text?.body}'),
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  return context.go('details', extra: text);
+                  return context.go('/', extra: text);
                 } ,
                 child: const Text('Go back to the Home screen'),
               ),
@@ -156,9 +179,22 @@ class DetailsScreen extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  return context.goNamed('more-detailed', extra: text);
+                  // return context.goNamed('more-detailed', extra: text);
+                  return context.go('/details/more-detailed/null', extra: text);
                 } ,
                 child: const Text('Go to more detailed'),
+              ),
+            ),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // return context.goNamed('more-detailed', extra: text);
+                  // return context.go('/details/more-detailed/null', extra: text);
+                  Navigator.push(context, CupertinoPageRoute(builder: (context) {
+                    return MoreDetailedScreen(isRoute: false);
+                  },));
+                } ,
+                child: const Text('Go Navigator'),
               ),
             ),
           ],
@@ -168,20 +204,90 @@ class DetailsScreen extends StatelessWidget {
   }
 }
 
-class MoreDetailedScreen extends StatelessWidget {
-  const MoreDetailedScreen({super.key});
+class MoreDetailedScreen extends StatefulWidget {
+  final String? productCode;
+  final bool isRoute;
+
+  const MoreDetailedScreen({super.key, this.productCode, required this.isRoute});
+
+  @override
+  State<MoreDetailedScreen> createState() => _MoreDetailedScreenState();
+}
+
+class _MoreDetailedScreenState extends State<MoreDetailedScreen> {
+  String? productCode;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    productCode = widget.productCode;
+    if (productCode == null) {
+      getProductCode();
+    }
+    setState(() {});
+  }
+
+  getProductCode() {
+    var product = context.read<Product>();
+    productCode = product.productCode;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('More Detailed Screen'), backgroundColor: Colors.yellow),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            return context.go('details');
-          },
-          child: const Text('Go back to the Home screen'),
-        )
+      appBar: AppBar(title: const Text('More Detailed Screen'), backgroundColor: Colors.amber),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Product Code : $productCode'),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                if (widget.isRoute) return context.go('/details');
+                Navigator.pop(context);
+              },
+              child: const Text('Go back'),
+            )
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, CupertinoPageRoute(builder: (context) {
+                  return MoreMorePage();
+                },));
+              },
+              child: const Text('More More'),
+            )
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MoreMorePage extends StatelessWidget {
+  const MoreMorePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('More Detailed Screen'), backgroundColor: Colors.red),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('More More Page'),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // if (widget.isRoute) return context.go('/details');
+                Navigator.pop(context);
+              },
+              child: const Text('Go back'),
+            )
+          ),
+        ],
       ),
     );
   }
