@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_go_router/product_provider.dart';
+import 'package:flutter_go_router/common.dart';
 import 'package:flutter_go_router/router.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -20,12 +22,7 @@ import 'package:uni_links/uni_links.dart';
 /// to using the address bar.
 void main() {
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => Product())
-      ],
-      child: const MyApp(),
-    )
+    const MyApp()
   );
   initUiLinks();
 } 
@@ -72,13 +69,13 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: router,
-      theme: ThemeData(
+      theme: Platform.isAndroid ? ThemeData(
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android : CupertinoPageTransitionsBuilder()
           }
         )
-      ),
+      ) : ThemeData(),
     );
   }
 }
@@ -151,54 +148,43 @@ class DetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: ()  async {
-        Navigator.pop(context);
-        // if (isRoute) {
-        //   context.go('/');
-        // } else {
-        //   Navigator.pop(context);
-        // }
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Details Screen'), backgroundColor: Colors.green),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Title : ${text?.title}'),
-            Text('Body : ${text?.body}'),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  return context.go('/', extra: text);
-                } ,
-                child: const Text('Go back to the Home screen'),
-              ),
+    return BoronganScaffold(
+      appBar: AppBar(title: const Text('Details Screen'), backgroundColor: Colors.green),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Title : ${text?.title}'),
+          Text('Body : ${text?.body}'),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                return context.go('/', extra: text);
+              } ,
+              child: const Text('Go back to the Home screen'),
             ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // return context.goNamed('more-detailed', extra: text);
-                  return context.go('/details/more-detailed/null', extra: text);
-                } ,
-                child: const Text('Go to more detailed'),
-              ),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // return context.goNamed('more-detailed', extra: text);
+                return context.go('/details/more-detailed/null', extra: text);
+              } ,
+              child: const Text('Go to more detailed'),
             ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // return context.goNamed('more-detailed', extra: text);
-                  // return context.go('/details/more-detailed/null', extra: text);
-                  Navigator.push(context, CupertinoPageRoute(builder: (context) {
-                    return MoreDetailedScreen(isRoute: false);
-                  },));
-                } ,
-                child: const Text('Go Navigator'),
-              ),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // return context.goNamed('more-detailed', extra: text);
+                // return context.go('/details/more-detailed/null', extra: text);
+                Navigator.push(context, CupertinoPageRoute(builder: (context) {
+                  return MoreDetailedScreen(isRoute: false);
+                },));
+              } ,
+              child: const Text('Go Navigator'),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -222,15 +208,6 @@ class _MoreDetailedScreenState extends State<MoreDetailedScreen> {
     // TODO: implement initState
     super.initState();
     productCode = widget.productCode;
-    if (productCode == null) {
-      getProductCode();
-    }
-    setState(() {});
-  }
-
-  getProductCode() {
-    var product = context.read<Product>();
-    productCode = product.productCode;
     setState(() {});
   }
 
@@ -312,3 +289,209 @@ class NotFoundScreen extends StatelessWidget {
     );
   }
 }
+                                            // pas bnget 300
+
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter/src/widgets/framework.dart';
+// import 'package:flutter/src/widgets/placeholder.dart';
+// import 'package:flutter_go_router/pages.dart';
+
+// class CustomData{
+//   final String title;
+//   final String body;
+
+//   CustomData({required this.title, required this.body});
+// }
+
+// // class AppState with ChangeNotifier{
+// //   List<Page> pages = [];
+
+// //   CupertinoPage createPage() {
+// //     return CupertinoPage(
+// //       key: ValueKey(value),
+// //       child: child
+// //     );
+// //   }
+// // }
+
+// void main () {
+//   runApp(const MyApp());
+// }
+
+// class MyApp extends StatefulWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   State<MyApp> createState() => _MyAppState();
+// }
+
+// class _MyAppState extends State<MyApp> {
+//   List<Page> _pages = [];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _pages = [_homePage()];
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: Navigator(
+//         pages: _pages,
+//         onPopPage: (route, result) {
+//           if (route.didPop(result)) {
+//             _pages.removeLast();
+//             return true;
+//           }
+//           return false;
+//         },
+//       )
+//     );
+//   }
+
+//   Page _homePage () {
+//     return CupertinoPage(
+//       key: ValueKey('HomeScreen'),
+//       child: Scaffold(
+//         appBar: AppBar(
+//           title: Text('Home Screen'),
+//           backgroundColor: Colors.green,
+//         ),
+//         body: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Center(
+//               child: ElevatedButton(
+//                 onPressed: () {
+//                   setState(() {
+//                     _pages.add(_eventPage(CustomData(title: 'Produk', body: 'Detail')));
+//                     _pages = _pages.toList();
+//                   });
+//                 }, 
+//                 child: Text('Pindah')
+//               ),
+//             )
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   Page _eventPage (CustomData data) {
+//     return CupertinoPage(
+//       allowSnapshotting: false,
+//       key: ValueKey('EventScreen'),
+//       child: Scaffold(
+//         appBar: AppBar(
+//           title: Text('Event Screen'),
+//           backgroundColor: Colors.green,
+//         ),
+//         body: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Text('Passed data : ${data.title} & ${data.body}'),
+//             Center(
+//               child: ElevatedButton(
+//                 onPressed: () {
+//                   _pages.removeLast();
+//                   _pages = _pages.toList();
+//                   setState(() {});
+//                 }, 
+//                 child: Text('Balik')
+//               ),
+//             )
+//           ],
+//         ),
+//       )
+//     );
+//   }
+// }
+
+// // class Event extends StatefulWidget {
+// //   final String data;
+  
+// //   const Event({super.key, required this.data});
+
+// //   @override
+// //   State<Event> createState() => _EventState();
+// // }
+
+// // class _EventState extends State<Event> {
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return Scaffold(
+// //       appBar: AppBar(
+// //         title: Text('Event Screen'),
+// //         backgroundColor: Colors.green,
+// //       ),
+// //       body: Column(
+// //         mainAxisAlignment: MainAxisAlignment.center,
+// //         children: [
+// //           Text('Passed data : ${widget.data}'),
+// //           Center(
+// //             child: ElevatedButton(
+// //               onPressed: () {
+// //                 _pages.removeLast();
+// //                 _pages = _pages.toList();
+// //                 setState(() {});
+// //               }, 
+// //               child: Text('Balik')
+// //             ),
+// //           )
+// //         ],
+// //       ),
+// //     );
+// //   }
+// // }
+
+// class HomeScreen extends StatelessWidget {
+//   const HomeScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Home Screen'),
+//         backgroundColor: Colors.green,
+//       ),
+//       body: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           Center(
+//             child: ElevatedButton(
+//               onPressed: () {}, 
+//               child: Text('Pindah')
+//             ),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// class EventScreen extends StatelessWidget {
+//   const EventScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Event Screen'),
+//         backgroundColor: Colors.green,
+//       ),
+//       body: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           Center(
+//             child: ElevatedButton(
+//               onPressed: () {}, 
+//               child: Text('Pindah')
+//             ),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }
