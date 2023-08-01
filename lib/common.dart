@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum ScaffoldType{
   android,
@@ -9,6 +10,7 @@ enum ScaffoldType{
 }
 
 class BoronganScaffold extends StatelessWidget {
+  final Future<bool> Function()? onWillPop;
   final bool extendBody;
   final bool extendBodyBehindAppBar;
   final PreferredSizeWidget? appBar;
@@ -60,6 +62,7 @@ class BoronganScaffold extends StatelessWidget {
     this.drawerEnableOpenDragGesture = true,
     this.endDrawerEnableOpenDragGesture = true,
     this.restorationId,
+    this.onWillPop
   }) : assert(primary != null),
        assert(extendBody != null),
        assert(extendBodyBehindAppBar != null),
@@ -69,9 +72,14 @@ class BoronganScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
       return WillPopScope(
-        onWillPop: () async {
-          Navigator.pop(context);
+        onWillPop: onWillPop ?? () async {
+          if (!ModalRoute.of(context)!.isFirst) {
+            return true;
+          }
+          SystemNavigator.pop();
           return false;
+          // Navigator.pop(context);
+          // return false;
         },
         child: Scaffold(
           appBar: appBar,
@@ -102,33 +110,66 @@ class BoronganScaffold extends StatelessWidget {
         )
       );
     } else {
-      return Scaffold(
-        appBar: appBar,
-        backgroundColor: backgroundColor,
-        body: body,
-        bottomNavigationBar: bottomNavigationBar,
-        bottomSheet: bottomSheet,
-        drawer: drawer,
-        drawerDragStartBehavior: drawerDragStartBehavior,
-        drawerEdgeDragWidth: drawerEdgeDragWidth,
-        drawerEnableOpenDragGesture: drawerEnableOpenDragGesture,
-        drawerScrimColor: drawerScrimColor,
-        endDrawer: endDrawer,
-        endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
-        extendBody: extendBody,
-        extendBodyBehindAppBar: extendBodyBehindAppBar,
-        floatingActionButton: floatingActionButton,
-        floatingActionButtonAnimator: floatingActionButtonAnimator,
-        floatingActionButtonLocation: floatingActionButtonLocation,
-        key: key,
-        onDrawerChanged: onDrawerChanged,
-        onEndDrawerChanged: onEndDrawerChanged,
-        persistentFooterAlignment: persistentFooterAlignment,
-        persistentFooterButtons: persistentFooterButtons,
-        primary: primary,
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-        restorationId: restorationId,
-      );
+      if (onWillPop != null) {
+        return WillPopScope(
+          onWillPop: onWillPop,
+          child: Scaffold(
+            appBar: appBar,
+            backgroundColor: backgroundColor,
+            body: body,
+            bottomNavigationBar: bottomNavigationBar,
+            bottomSheet: bottomSheet,
+            drawer: drawer,
+            drawerDragStartBehavior: drawerDragStartBehavior,
+            drawerEdgeDragWidth: drawerEdgeDragWidth,
+            drawerEnableOpenDragGesture: drawerEnableOpenDragGesture,
+            drawerScrimColor: drawerScrimColor,
+            endDrawer: endDrawer,
+            endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
+            extendBody: extendBody,
+            extendBodyBehindAppBar: extendBodyBehindAppBar,
+            floatingActionButton: floatingActionButton,
+            floatingActionButtonAnimator: floatingActionButtonAnimator,
+            floatingActionButtonLocation: floatingActionButtonLocation,
+            key: key,
+            onDrawerChanged: onDrawerChanged,
+            onEndDrawerChanged: onEndDrawerChanged,
+            persistentFooterAlignment: persistentFooterAlignment,
+            persistentFooterButtons: persistentFooterButtons,
+            primary: primary,
+            resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+            restorationId: restorationId,
+          ),
+        );
+      } else {
+        return Scaffold(
+          appBar: appBar,
+          backgroundColor: backgroundColor,
+          body: body,
+          bottomNavigationBar: bottomNavigationBar,
+          bottomSheet: bottomSheet,
+          drawer: drawer,
+          drawerDragStartBehavior: drawerDragStartBehavior,
+          drawerEdgeDragWidth: drawerEdgeDragWidth,
+          drawerEnableOpenDragGesture: drawerEnableOpenDragGesture,
+          drawerScrimColor: drawerScrimColor,
+          endDrawer: endDrawer,
+          endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
+          extendBody: extendBody,
+          extendBodyBehindAppBar: extendBodyBehindAppBar,
+          floatingActionButton: floatingActionButton,
+          floatingActionButtonAnimator: floatingActionButtonAnimator,
+          floatingActionButtonLocation: floatingActionButtonLocation,
+          key: key,
+          onDrawerChanged: onDrawerChanged,
+          onEndDrawerChanged: onEndDrawerChanged,
+          persistentFooterAlignment: persistentFooterAlignment,
+          persistentFooterButtons: persistentFooterButtons,
+          primary: primary,
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+          restorationId: restorationId,
+        );
+      }
     }
 
     // switch (type) {

@@ -45,6 +45,13 @@ final GoRouter router = GoRouter(
         ),
       ],
     ),
+    GoRoute(
+      path: '/transaksi',
+      name: 'transaksi',
+      builder: (context, state) {
+        return TransactionPage();
+      },
+    )
   ],
   debugLogDiagnostics: true
 );

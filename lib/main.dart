@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_go_router/common.dart';
 import 'package:flutter_go_router/router.dart';
 import 'package:go_router/go_router.dart';
@@ -97,10 +99,21 @@ class Data{
 }
 
 /// The home screen
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   /// Constructs a [HomeScreen]
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    log('iniHome');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -250,7 +263,7 @@ class MoreMorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('More Detailed Screen'), backgroundColor: Colors.red),
+      appBar: AppBar(title: const Text('More More Screen'), backgroundColor: Colors.red),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -264,6 +277,59 @@ class MoreMorePage extends StatelessWidget {
               child: const Text('Go back'),
             )
           ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // if (widget.isRoute) return context.go('/details');
+                context.go('/');
+              },
+              child: const Text('Go Home'),
+            )
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // if (widget.isRoute) return context.go('/details');
+                context.goNamed('transaksi');
+              },
+              child: const Text('Go Trans'),
+            )
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TransactionPage extends StatefulWidget {
+  const TransactionPage({super.key});
+
+  @override
+  State<TransactionPage> createState() => _TransactionPageState();
+}
+
+class _TransactionPageState extends State<TransactionPage> {
+  
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   quitApp();
+  // }
+
+  // quitApp() {
+  //   return SystemNavigator.pop();
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return BoronganScaffold(
+      appBar: AppBar(title: Text('Ini beda dunia')),
+      backgroundColor: Colors.white,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Ini halaman transaksi')
         ],
       ),
     );
